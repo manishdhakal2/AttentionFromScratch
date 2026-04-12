@@ -45,10 +45,24 @@ class Attention:
 
         B,T,H = h_enc.shape
 
-
-        self.general_w = np.zeros((B,T,H))
+        #Initialize the weight matrix randomly
+        if not self.general_w:
+            self.general_w = np.random.uniform(0,1,(H,H)) 
 
         
+
+        transformed_h_dec = np.zeros((B,H))
+
+        for index in range(B):
+            transformed_h_dec[index] = h_dec_t[index] @ self.general_w
+        
+        similarity_score = np.zeros((B,T))
+
+        for index in range(B):
+            similarity_score[index] = np.dot(h_enc[index],  transformed_h_dec[index])
+        
+
+        return self.get_context_vector(h_enc, similarity_score)
 
 
 
