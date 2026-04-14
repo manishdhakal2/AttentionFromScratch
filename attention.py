@@ -2,17 +2,25 @@ import torch
 import torch.nn as nn
 
 class SelfAttention(nn.Module):
-    def __init__(self, d_k) -> None:
+    def __init__(self, embed_dim) -> None:
         super().__init__()
 
         #Assumes dimension of key is equal to dimension of value
-        self.d_k = None
+
+        self.embed_dim = embed_dim
 
         #Dimension for the weights
         self.D_w = 64
 
         #Initialize the weights
-        self.w_Q, self.w_K, self.w_V = None,None,None
+        self.w_Q = nn.Parameter(torch.empty(self.embed_dim, self.D_w))
+        self.w_K =  nn.Parameter(torch.empty(self.embed_dim, self.D_w))
+        self.w_V = nn.Parameter(torch.empty(self.embed_dim, self.D_w))
+
+        #Apply xavier initialization
+        nn.init.xavier_uniform_(self.w_Q)
+        nn.init.xavier_uniform_(self.w_K)
+        nn.init.xavier_uniform_(self.w_V)
     
     def forward(self, embeddings : torch.Tensor) -> torch.Tensor:
 
@@ -23,32 +31,23 @@ class SelfAttention(nn.Module):
         embedding (B,V,E) : 
         """
 
-        B, V, E = embeddings.shape
-
-        if self.w_Q is None:
-            self.w_Q = torch.rand([E, self.D_w], requires_grad=True) 
-        if self.w_K is None:
-            self.w_K = torch.rand([E, self.D_w], requires_grad= True)
-        if self.w_V is None:
-            self.w_V = torch.rand([E, self.D_w], requires_grad= True)
-
         query = embeddings @ self.w_Q
         key = embeddings @ self.w_K
         value = embeddings @ self.w_V
-        self.d_k = torch.tensor(key.shape[2])
+        d_k = key.shape[2]
 
         #Compute dot product
         dot_qk = query @ key.permute((0,2,1))
 
 
         #Normalize the dot product
-        normalized_dot_qk = dot_qk/torch.sqrt(self.d_k)
+        normalized_dot_qk = dot_qk/d_k **0.5
 
-        #Softmax across tokens  (dim = 1)
+        #Softmax across tokens  (dim = -1)
         softmaxed_dot_qk = torch.softmax(normalized_dot_qk, dim = -1)
 
         #Get the final attention scores
-        attention_qkv = softmaxed_dot_qk @ value.permute((0,2,1))
+        attention_qkv = softmaxed_dot_qk @ value
 
         return attention_qkv
 
