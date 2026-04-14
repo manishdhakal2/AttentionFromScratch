@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class SelfAttention(nn.Module):
-    def __init__(self, embed_dim) -> None:
+    def __init__(self, model_dim, embed_dim) -> None:
         super().__init__()
 
         #Assumes dimension of key is equal to dimension of value
@@ -10,7 +10,7 @@ class SelfAttention(nn.Module):
         self.embed_dim = embed_dim
 
         #Dimension for the weights
-        self.D_w = 64
+        self.D_w = model_dim
 
         #Initialize the weights
         self.w_Q = nn.Parameter(torch.empty(self.embed_dim, self.D_w))
