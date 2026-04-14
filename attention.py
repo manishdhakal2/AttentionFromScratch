@@ -30,7 +30,7 @@ class SelfAttention(nn.Module):
         if self.w_K is None:
             self.w_K = torch.rand([E, self.D_w], requires_grad= True)
         if self.w_V is None:
-            self.w_V = torch.rand([E, V], requires_grad= True)
+            self.w_V = torch.rand([E, self.D_w], requires_grad= True)
 
         query = embeddings @ self.w_Q
         key = embeddings @ self.w_K
@@ -48,14 +48,14 @@ class SelfAttention(nn.Module):
         softmaxed_dot_qk = torch.softmax(normalized_dot_qk, dim = 1)
 
         #Get the final attention scores
-        attention_qkv = softmaxed_dot_qk @ self.w_V.T
+        attention_qkv = softmaxed_dot_qk @ value.permute((0,2,1))
 
         return attention_qkv
 
 
 
 
-attention = SelfAttention(3)
+
 
 
 
