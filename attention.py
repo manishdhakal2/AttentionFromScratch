@@ -45,7 +45,7 @@ class SelfAttention(nn.Module):
         normalized_dot_qk = dot_qk/torch.sqrt(self.d_k)
 
         #Softmax across tokens  (dim = 1)
-        softmaxed_dot_qk = torch.softmax(normalized_dot_qk, dim = 1)
+        softmaxed_dot_qk = torch.softmax(normalized_dot_qk, dim = -1)
 
         #Get the final attention scores
         attention_qkv = softmaxed_dot_qk @ value.permute((0,2,1))
